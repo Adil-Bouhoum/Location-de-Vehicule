@@ -24,15 +24,24 @@ typedef struct Car{
 
 void displayMenu() {
     printf("\n------ Gestion de la Location de Voitures ------\n");
-    printf("1. Ajouter \n");
-    printf("2. Modifier \n");
-    printf("3. Supprimer \n");
+    printf("1. Ajouter\n");
+    printf("2. Modifier\n");
+    printf("3. Supprimer\n");
+    printf("\t a. Supprimer par ID\n");
+    printf("\t b. Supprimer la dernière voiture\n");
+    printf("\t c. Retourner au menu principal\n");
     printf("4. Afficher la liste\n");
+    printf("\t a. Afficher par Marque\n");
+    printf("\t b. Afficher par Disponibilité\n");
+    printf("\t c. Afficher par Type de Carburant\n");
+    printf("\t d. Afficher tout le fichier\n");
+    printf("\t e. Retourner au menu principal\n");
     printf("5. Rechercher\n");
     printf("6. Trier les voitures\n");
     printf("0. Quitter\n");
     printf("------------------------------------------------\n");
 }
+
 
 void Addcar(const char *filename) {
     Car newCar;
@@ -77,6 +86,233 @@ void Addcar(const char *filename) {
 
     fclose(file);
 }
+
+
+// Function to delete a car by ID
+void DeleteByID(const char *filename, int id) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    FILE *tempFile = fopen("temp.csv", "w");
+    if (tempFile == NULL) {
+        fclose(file);
+        printf("Error creating temporary file.\n");
+        return;
+    }
+
+    char line[MAX_LINE];
+    while (fgets(line, sizeof(line), file)) {
+        char *token = strtok(line, ";");
+        int carID = atoi(token);
+        if (carID != id) {
+            fputs(line, tempFile);
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    remove(filename);
+    rename("temp.csv", filename);
+}
+
+// Function to delete the last car from the list
+void DeleteLastCar(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    FILE *tempFile = fopen("temp.csv", "w");
+    if (tempFile == NULL) {
+        fclose(file);
+        printf("Error creating temporary file.\n");
+        return;
+    }
+
+    char line[MAX_LINE];
+    char lastLine[MAX_LINE];
+
+    while (fgets(line, sizeof(line), file)) {
+        strcpy(lastLine, line);
+    }
+
+    rewind(file);
+
+    while (fgets(line, sizeof(line), file)) {
+        if (strcmp(line, lastLine) != 0) {
+            fputs(line, tempFile);
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    remove(filename);
+    rename("temp.csv", filename);
+}
+
+// Function to modify car info by ID
+void ModifyCarInfo(const char *filename, int id) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    FILE *tempFile = fopen("temp.csv", "w");
+    if (tempFile == NULL) {
+        fclose(file);
+        printf("Error creating temporary file.\n");
+        return;
+    }
+
+    char line[MAX_LINE];
+    while (fgets(line, sizeof(line), file)) {
+        char *token = strtok(line, ";");
+        int carID = atoi(token);
+        if (carID == id) {
+            // Modify car info
+            // You can prompt the user for new information and update the line accordingly
+        }
+        fputs(line, tempFile);
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    remove(filename);
+    rename("temp.csv", filename);
+}
+
+void DisplayFileContents(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    printf("Contents of %s:\n", filename);
+    char line[MAX_LINE];
+    while (fgets(line, sizeof(line), file)) {
+        printf("%s", line);
+    }
+
+    fclose(file);
+}
+
+
+// Function to display cars by criteria (Mark/Disponibilité/fueltype)
+void DisplayCarsByMark(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    char line[MAX_LINE];
+    printf("Enter the brand name you would like to search for: ");
+    char searchBrand[50];
+    scanf("%s", searchBrand);
+
+    printf("Cars List based on Marque (%s):\n", searchBrand);
+    int found = 0; // Flag to check if any cars with the given brand are found
+
+    while (fgets(line, sizeof(line), file)) {
+        // Extract car information from the line
+        int id, numSeats, availability;
+        char brand[50], username[50], model[50], fuelType[20], transmission[20];
+        float rentalPrice;
+
+        sscanf(line, "%d;%49[^;];%49[^;];%49[^;];%19[^;];%d;%19[^;];%f;%d\n",
+               &id, brand, username, model, fuelType, &numSeats, transmission, &rentalPrice, &availability);
+
+        // Check if the car meets the brand criteria
+        if (strcmp(brand, searchBrand) == 0) {
+            printf("ID: %d, Marque: %s, Username: %s, Model: %s, Type de Carburant: %s, Nombre de sièges: %d, Transmission: %s, Prix de location: %.2f, Disponibilité: %s\n",
+                   id, brand, username, model, fuelType, numSeats, transmission, rentalPrice, (availability == 1) ? "Disponible" : "Non disponible");
+            found = 1; // Set flag to indicate at least one car is found
+        }
+    }
+
+    if (!found) {
+        printf("No cars found with the brand: %s\n", searchBrand);
+    }
+
+    fclose(file);
+}
+
+
+
+
+void DisplayCarsByAvailability(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    char line[MAX_LINE];
+    printf("Cars List based on Disponibilité:\n");
+    int searchAvailability;
+    printf("Enter 1 for available cars or 0 for unavailable cars: ");
+    scanf("%d", &searchAvailability);
+
+    while (fgets(line, sizeof(line), file)) {
+        // Extract car information from the line
+        int id, numSeats, availability;
+        char brand[50], username[50], model[50], fuelType[20], transmission[20];
+        float rentalPrice;
+
+        sscanf(line, "%d;%49[^;];%49[^;];%49[^;];%19[^;];%d;%19[^;];%f;%d\n",
+               &id, brand, username, model, fuelType, &numSeats, transmission, &rentalPrice, &availability);
+
+        // Check if the car meets the availability criteria
+        if (availability == searchAvailability) {
+            printf("ID: %d, Marque: %s, Disponibilité: %s\n",
+                   id, brand, (availability == 1) ? "Disponible" : "Non disponible");
+        }
+    }
+
+    fclose(file);
+}
+
+void DisplayCarsByFuelType(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    char line[MAX_LINE];
+    printf("Cars List based on Type de Carburant:\n");
+    char searchFuelType[20];
+    printf("Enter the fuel type you would like to search for: ");
+    scanf("%s", searchFuelType);
+
+    while (fgets(line, sizeof(line), file)) {
+        // Extract car information from the line
+        int id, numSeats, availability;
+        char brand[50], username[50], model[50], fuelType[20], transmission[20];
+        float rentalPrice;
+
+        sscanf(line, "%d;%49[^;];%49[^;];%49[^;];%19[^;];%d;%19[^;];%f;%d\n",
+               &id, brand, username, model, fuelType, &numSeats, transmission, &rentalPrice, &availability);
+
+        // Check if the car meets the fuel type criteria
+        if (strcmp(fuelType, searchFuelType) == 0) {
+            printf("ID: %d, Marque: %s, Type de Carburant: %s\n",
+                   id, brand, fuelType);
+        }
+    }
+
+    fclose(file);
+}
+
 
 
 
@@ -140,9 +376,9 @@ void ShowCarList(const char *filename) {
     fclose(file);
 }
 
-int main(){
+int main() {
     int choice;
- do {
+    do {
         displayMenu();
         printf("Entrez votre choix : ");
         scanf("%d", &choice);
@@ -152,19 +388,73 @@ int main(){
                 Addcar("carlist.csv");
                 break;
             case 2:
-
+                // ModifyCarInfo();
                 break;
-            case 3:
-                 DeleteFirstCar("carlist.csv");
+            case 3:{
+                // Delete options
+                char deleteChoice;
+                printf("Choisissez l'option de suppression :\n");
+                printf("a. Supprimer par ID\n");
+                printf("b. Supprimer la dernière voiture\n");
+                printf("c. Retourner au menu principal\n");
+                scanf(" %c", &deleteChoice);
+                switch (deleteChoice) {
+                    case 'a':
+                        // Delete by ID
+                        // You might prompt for the ID and call DeleteByID function
+                        break;
+                    case 'b':
+                        // Delete the last car
+                        DeleteLastCar("carlist.csv");
+                        break;
+                    case 'c':
+                        // Return to main menu
+                        break;
+                    default:
+                        printf("Choix invalide.\n");
+                }
                 break;
-            case 4:
-               ShowCarList("carlist.csv");
+            }
+            case 4:{
+                // Display options
+                char displayChoice;
+                printf("Choisissez l'option d'affichage :\n");
+                printf("a. Afficher par Marque\n");
+                printf("b. Afficher par Disponibilité\n");
+                printf("c. Afficher par Type de Carburant\n");
+                printf("d. Afficher tout le fichier\n");
+                printf("e. Retourner au menu principal\n");
+                scanf(" %c", &displayChoice);
+                switch (displayChoice) {
+                    case 'a':
+                        // Display cars by brand
+                        DisplayCarsByMark("carlist.csv");
+                        break;
+                    case 'b':
+                        // Display cars by availability
+                        DisplayCarsByAvailability("carlist.csv");
+                        break;
+                    case 'c':
+                        // Display cars by fuel type
+                        DisplayCarsByFuelType("carlist.csv");
+                        break;
+                    case 'd':
+                        // Display entire file
+                        DisplayFileContents("carlist.csv");
+                        break;
+                    case 'e':
+                        // Return to main menu
+                        break;
+                    default:
+                        printf("Choix invalide.\n");
+                }
                 break;
+            }
             case 5:
-
+                // Search
                 break;
             case 6:
-
+                // Sort
                 break;
             case 0:
                 printf("Merci d'avoir utilisé l'application. Au revoir!\n");
@@ -174,8 +464,5 @@ int main(){
         }
     } while (choice != 0);
 
-
-
-
-        return 0;
+    return 0;
 }
