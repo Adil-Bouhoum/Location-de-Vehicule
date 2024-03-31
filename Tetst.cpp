@@ -171,23 +171,59 @@ void ModifyCarInfo(const char *filename, int id) {
         return;
     }
 
-    char line[MAX_LINE];
-    while (fgets(line, sizeof(line), file)) {
-        char *token = strtok(line, ";");
-        int carID = atoi(token);
-        if (carID == id) {
-            // Modify car info
-            // You can prompt the user for new information and update the line accordingly
+    Car car;
+    int modified = 0; // Flag to track if any modification occurred
+
+    while (fread(&car, sizeof(Car), 1, file)) {
+        printf("Car id is :%d , Searching for id %d \n", car.id,id);
+        if (car.id == id) {
+            modified = 1; // Set flag to indicate modification
+            printf("Enter new car information:\n");
+            printf("Brand: ");
+            fgets(car.brand, sizeof(car.brand), stdin);
+
+            printf("Username: ");
+            fgets(car.username, sizeof(car.username), stdin);
+
+            printf("Model: ");
+            fgets(car.model, sizeof(car.model), stdin);
+
+            printf("Fuel type: ");
+            fgets(car.fuelType, sizeof(car.fuelType), stdin);
+
+            printf("Number of seats: ");
+            scanf("%d", &car.numSeats);
+            getchar(); // Consume newline left by scanf
+
+            printf("Transmission: ");
+            fgets(car.transmission, sizeof(car.transmission), stdin);
+
+            printf("Rental price: ");
+            scanf("%f", &car.rentalPrice);
+            getchar(); // Consume newline left by scanf
+
+            printf("Availability (1 for available, 0 for not available): ");
+            scanf("%d", &car.availability);
+            getchar(); // Consume newline left by scanf
         }
-        fputs(line, tempFile);
+
+        // Write the car to the temporary file
+        fwrite(&car, sizeof(Car), 1, tempFile);
     }
 
     fclose(file);
     fclose(tempFile);
 
-    remove(filename);
-    rename("temp.csv", filename);
+    if (!modified) {
+        printf("No car found with ID %d.\n", id);
+        remove("temp.csv"); // Remove temporary file if no modification occurred
+    } else {
+        remove(filename); // Remove original file
+        rename("temp.csv", filename); // Rename temporary file to original filename
+        printf("Car with ID %d has been modified.\n", id);
+    }
 }
+
 
 void DisplayFileContents(const char *filename) {
     FILE *file = fopen(filename, "r");
@@ -376,6 +412,10 @@ void ShowCarList(const char *filename) {
     fclose(file);
 }
 
+
+
+
+
 int main() {
     int choice;
     do {
@@ -387,9 +427,13 @@ int main() {
             case 1:
                 Addcar("carlist.csv");
                 break;
-            case 2:
-                // ModifyCarInfo();
+            case 2:{
+                int id;
+                printf("Veuillez entrez ID a changer\n");
+                scanf("%d",&id);
+                ModifyCarInfo("carlist.csv",  id);
                 break;
+            }
             case 3:{
                 // Delete options
                 char deleteChoice;
@@ -452,7 +496,29 @@ int main() {
             }
             case 5:
                 // Search
+                int searchID;
+                char searchBrand[50];
+                printf("Choisissez le critère de recherche :\n");
+                printf("a. Rechercher par ID\n");
+                printf("b. Rechercher par Marque\n");
+                printf("c. Retourner au menu principal\n");
+                char searchChoice;
+                scanf(" %c", &searchChoice);
+                switch (searchChoice) {
+                    case 'a':
+
+                        break;
+                    case 'b':
+
+                        break;
+                    case 'c':
+                        // Return to main menu
+                        break;
+                    default:
+                        printf("Choix invalide.\n");
+                }
                 break;
+
             case 6:
                 // Sort
                 break;
