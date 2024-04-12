@@ -1,30 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#define MAX_LINE 1000
-#include<Structs.c>
-#include<declaration.h>
-
-void displayMenu() {
-    printf("\n------ Gestion de la Location de Voitures ------\n");
-    printf("1. Ajouter\n");
-    printf("2. Modifier\n");
-    printf("3. Supprimer\n");
-    printf("\t a. Supprimer par ID\n");
-    printf("\t b. Supprimer la dernière voiture\n");
-    printf("\t c. Retourner au menu principal\n");
-    printf("4. Afficher la liste\n");
-    printf("\t a. Afficher par Marque\n");
-    printf("\t b. Afficher par Disponibilité\n");
-    printf("\t c. Afficher par Type de Carburant\n");
-    printf("\t d. Afficher tout le fichier\n");
-    printf("\t e. Retourner au menu principal\n");
-    printf("5. Rechercher\n");
-    printf("6. Trier les voitures\n");
-    printf("0. Quitter\n");
-    printf("------------------------------------------------\n");
-}
-
+#include "car_operations.h"
 
 void Addcar(const char *filename) {
     Car newCar;
@@ -70,76 +45,6 @@ void Addcar(const char *filename) {
     fclose(file);
 }
 
-
-// Function to delete a car by ID
-void DeleteByID(const char *filename, int id) {
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        printf("Error opening file.\n");
-        return;
-    }
-
-    FILE *tempFile = fopen("temp.csv", "w");
-    if (tempFile == NULL) {
-        fclose(file);
-        printf("Error creating temporary file.\n");
-        return;
-    }
-
-    char line[MAX_LINE];
-    while (fgets(line, sizeof(line), file)) {
-        char *token = strtok(line, ";");
-        int carID = atoi(token);
-        if (carID != id) {
-            fputs(line, tempFile);
-        }
-    }
-
-    fclose(file);
-    fclose(tempFile);
-
-    remove(filename);
-    rename("temp.csv", filename);
-}
-
-// Function to delete the last car from the list
-void DeleteLastCar(const char *filename) {
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        printf("Error opening file.\n");
-        return;
-    }
-
-    FILE *tempFile = fopen("temp.csv", "w");
-    if (tempFile == NULL) {
-        fclose(file);
-        printf("Error creating temporary file.\n");
-        return;
-    }
-
-    char line[MAX_LINE];
-    char lastLine[MAX_LINE];
-
-    while (fgets(line, sizeof(line), file)) {
-        strcpy(lastLine, line);
-    }
-
-    rewind(file);
-
-    while (fgets(line, sizeof(line), file)) {
-        if (strcmp(line, lastLine) != 0) {
-            fputs(line, tempFile);
-        }
-    }
-
-    fclose(file);
-    fclose(tempFile);
-
-    remove(filename);
-    rename("temp.csv", filename);
-}
-
-// Function to modify car info by ID
 void ModifyCarInfo(const char *filename, int id) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
@@ -207,9 +112,140 @@ void ModifyCarInfo(const char *filename, int id) {
     }
 }
 
+void deleteMenu() {
+    char deleteChoice;
+                printf("Choisissez l'option de suppression :\n");
+                printf("a. Supprimer par ID\n");
+                printf("b. Supprimer la dernière voiture\n");
+                printf("c. Retourner au menu principal\n");
+                scanf(" %c", &deleteChoice);
+                switch (deleteChoice) {
+                    case 'a':
+                        int id;
+                        printf("Veuillez entrer l'ID a supprimer :");
+                        scanf("%d",&id);
+                        DeleteByID("carlist.csv", id);
+                        break;
+                    case 'b':
+                        // Delete the last car
+                        DeleteLastCar("carlist.csv");
+                        break;
+                    case 'c':
+                        // Return to main menu
+                        break;
+                    default:
+                        printf("Choix invalide.\n");
+                }
+}
+
+void DeleteFirstCar(const char *filename){
+    FILE *file = fopen(filename, "r"); // Open the file in read mode
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    // Create a temporary file
+    FILE *tempFile = fopen("temp.csv", "w");
+    if (tempFile == NULL) {
+        fclose(file);
+        printf("Error creating temporary file.\n");
+        return;
+    }
+
+    char line[MAX_LINE];
+    int lineNumber = 0;
+
+    // Copy the header line to the temporary file
+    if (fgets(line, sizeof(line), file) != NULL) {
+        fputs(line, tempFile);
+        lineNumber++;
+    }
+
+    // Copy all lines except the first one to the temporary file
+    while (fgets(line, sizeof(line), file)) {
+        if (lineNumber != 1) {
+            fputs(line, tempFile);
+        }
+        lineNumber++;
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    // Replace the original file with the temporary file
+    remove(filename);
+    rename("temp.csv", filename);
+}
+
+void DeleteByID(const char *filename, int id) {
+   FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    FILE *tempFile = fopen("temp.csv", "w");
+    if (tempFile == NULL) {
+        fclose(file);
+        printf("Error creating temporary file.\n");
+        return;
+    }
+
+    char line[MAX_LINE];
+    while (fgets(line, sizeof(line), file)) {
+        char *token = strtok(line, ";");
+        int carID = atoi(token);
+        if (carID != id) {
+            fputs(line, tempFile);
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    remove(filename);
+    rename("temp.csv", filename);
+}
+
+void DeleteLastCar(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    FILE *tempFile = fopen("temp.csv", "w");
+    if (tempFile == NULL) {
+        fclose(file);
+        printf("Error creating temporary file.\n");
+        return;
+    }
+
+    char line[MAX_LINE];
+    char lastLine[MAX_LINE];
+
+    while (fgets(line, sizeof(line), file)) {
+        strcpy(lastLine, line);
+    }
+
+    rewind(file);
+
+    while (fgets(line, sizeof(line), file)) {
+        if (strcmp(line, lastLine) != 0) {
+            fputs(line, tempFile);
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    remove(filename);
+    rename("temp.csv", filename);
+}
 
 void DisplayFileContents(const char *filename) {
-    FILE *file = fopen(filename, "r");
+   FILE *file = fopen(filename, "r");
     if (file == NULL) {
         printf("Error opening file.\n");
         return;
@@ -224,8 +260,6 @@ void DisplayFileContents(const char *filename) {
     fclose(file);
 }
 
-
-// Function to display cars by criteria (Mark/Disponibilité/fueltype)
 void DisplayCarsByMark(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
@@ -264,9 +298,6 @@ void DisplayCarsByMark(const char *filename) {
 
     fclose(file);
 }
-
-
-
 
 void DisplayCarsByAvailability(const char *filename) {
     FILE *file = fopen(filename, "r");
@@ -332,68 +363,10 @@ void DisplayCarsByFuelType(const char *filename) {
     fclose(file);
 }
 
-
-
-
-
-// Function to delete the first car from the list
-void DeleteFirstCar(const char *filename) {
-    FILE *file = fopen(filename, "r"); // Open the file in read mode
-    if (file == NULL) {
-        printf("Error opening file.\n");
-        return;
-    }
-
-    // Create a temporary file
-    FILE *tempFile = fopen("temp.csv", "w");
-    if (tempFile == NULL) {
-        fclose(file);
-        printf("Error creating temporary file.\n");
-        return;
-    }
-
-    char line[MAX_LINE];
-    int lineNumber = 0;
-
-    // Copy the header line to the temporary file
-    if (fgets(line, sizeof(line), file) != NULL) {
-        fputs(line, tempFile);
-        lineNumber++;
-    }
-
-    // Copy all lines except the first one to the temporary file
-    while (fgets(line, sizeof(line), file)) {
-        if (lineNumber != 1) {
-            fputs(line, tempFile);
-        }
-        lineNumber++;
-    }
-
-    fclose(file);
-    fclose(tempFile);
-
-    // Replace the original file with the temporary file
-    remove(filename);
-    rename("temp.csv", filename);
-}
-
-
-
 void ShowCarList(const char *filename) {
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        printf("Error opening file.\n");
-        return;
-    }
-
-    char line[MAX_LINE];
-    printf("Car List:\n");
-    while (fgets(line, sizeof(line), file)) {
-        printf("%s", line);
-    }
-
-    fclose(file);
+    // Function implementation
 }
 
-
-
+void sortMenu() {
+    // Function implementation
+}
