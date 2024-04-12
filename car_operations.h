@@ -28,5 +28,10 @@ void DisplayCarsByAvailability(const char *filename);
 void DisplayCarsByFuelType(const char *filename);
 void ShowCarList(const char *filename);
 void sortMenu();
+void swapCars(FILE *file, int index1, int index2);
+void sortByBrand(const char *filename);
+void sortByRentalPrice(const char *filename);
+void sortByAvailability(const char *filename);
+void sortByNumSeats(const char *filename);
 
 #endif

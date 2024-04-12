@@ -15,8 +15,10 @@ void displayMenu() {
     printf("\t c. Afficher par Type de Carburant\n");
     printf("\t d. Afficher tout le fichier\n");
     printf("\t e. Retourner au menu principal\n");
-    printf("5. Rechercher\n");
-    printf("6. Trier les voitures\n");
+    printf("5. Trier les voitures\n");
+    printf("\t a.Trier par Marque\n");
+    printf("\t b. Trier par Prix de Location\n");
+    printf("\t c. Retourner au menu principal\n");
     printf("0. Quitter\n");
     printf("------------------------------------------------\n");
 }

@@ -368,5 +368,140 @@ void ShowCarList(const char *filename) {
 }
 
 void sortMenu() {
-    // Function implementation
+    printf("\n------ Trier les Voitures ------\n");
+    printf("1. Trier par Marque\n");
+    printf("2. Trier par Prix de Location\n");
+    printf("3. Retourner au menu principal\n");
+    printf("------------------------------------------------\n");
 }
+
+void swapCars(FILE *file, int index1, int index2) {
+    // Seek to the positions of the two cars in the file
+    fseek(file, index1 * sizeof(Car), SEEK_SET);
+    Car car1;
+    fread(&car1, sizeof(Car), 1, file);
+
+    fseek(file, index2 * sizeof(Car), SEEK_SET);
+    Car car2;
+    fread(&car2, sizeof(Car), 1, file);
+
+    // Swap the cars in the file
+    fseek(file, index1 * sizeof(Car), SEEK_SET);
+    fwrite(&car2, sizeof(Car), 1, file);
+
+    fseek(file, index2 * sizeof(Car), SEEK_SET);
+    fwrite(&car1, sizeof(Car), 1, file);
+}
+
+
+void sortByBrand(const char *filename) {
+    FILE *file = fopen(filename, "r+");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    Car currentCar, nextCar;
+    int fileSize = 0;
+
+    // Get the file size
+    fseek(file, 0, SEEK_END);
+    fileSize = ftell(file);
+    rewind(file);
+
+    int numCars = fileSize / sizeof(Car);
+
+    for (int i = 0; i < numCars - 1; i++) {
+        for (int j = 0; j < numCars - i - 1; j++) {
+            // Read current and next cars
+            fseek(file, j * sizeof(Car), SEEK_SET);
+            fread(&currentCar, sizeof(Car), 1, file);
+
+            fseek(file, (j + 1) * sizeof(Car), SEEK_SET);
+            fread(&nextCar, sizeof(Car), 1, file);
+
+            // Compare brands and swap if necessary
+            if (strcmp(currentCar.brand, nextCar.brand) > 0) {
+                swapCars(file, j, j + 1);
+            }
+        }
+    }
+
+    fclose(file);
+    printf("Cars sorted by brand.\n");
+}
+
+void sortByAvailability(const char *filename) {
+    FILE *file = fopen(filename, "r+");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    Car currentCar, nextCar;
+    int fileSize = 0;
+
+    // Get the file size
+    fseek(file, 0, SEEK_END);
+    fileSize = ftell(file);
+    rewind(file);
+
+    int numCars = fileSize / sizeof(Car);
+
+    for (int i = 0; i < numCars - 1; i++) {
+        for (int j = 0; j < numCars - i - 1; j++) {
+            // Read current and next cars
+            fseek(file, j * sizeof(Car), SEEK_SET);
+            fread(&currentCar, sizeof(Car), 1, file);
+
+            fseek(file, (j + 1) * sizeof(Car), SEEK_SET);
+            fread(&nextCar, sizeof(Car), 1, file);
+
+            // Compare disponibility and swap if necessary
+            if (currentCar.availability < nextCar.availability) {
+                swapCars(file, j, j + 1);
+            }
+        }
+    }
+
+    fclose(file);
+    printf("Cars sorted by availability.\n");
+}
+
+void sortByRentalPrice(const char *filename) {
+    FILE *file = fopen(filename, "r+");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+
+    Car currentCar, nextCar;
+    int fileSize = 0;
+
+    // Get the file size
+    fseek(file, 0, SEEK_END);
+    fileSize = ftell(file);
+    rewind(file);
+
+    int numCars = fileSize / sizeof(Car);
+
+    for (int i = 0; i < numCars - 1; i++) {
+        for (int j = 0; j < numCars - i - 1; j++) {
+            // Read current and next cars
+            fseek(file, j * sizeof(Car), SEEK_SET);
+            fread(&currentCar, sizeof(Car), 1, file);
+
+            fseek(file, (j + 1) * sizeof(Car), SEEK_SET);
+            fread(&nextCar, sizeof(Car), 1, file);
+
+            // Compare rental prices and swap if necessary
+            if (currentCar.rentalPrice > nextCar.rentalPrice) {
+                swapCars(file, j, j + 1);
+            }
+        }
+    }
+
+    fclose(file);
+    printf("Cars sorted by rental price.\n");
+}
+

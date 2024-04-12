@@ -27,9 +27,6 @@ int main() {
                 displayMenu2();
                 break;
             case 5:
-                searchMenu();
-                break;
-            case 6:
                 sortMenu();//stil needed
                 break;
             case 0:
