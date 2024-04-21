@@ -14,11 +14,11 @@ int main() {
             case 1:
                 Addcar("carlist.csv");
                 break;
-            case 2:
+            case 2:{
                 int id;
                 printf("Entrez l'ID a changer:");
                 scanf("%d",&id);
-                ModifyCarInfo("carlist.csv",id);
+                ModifyCarInfo("carlist.csv",id);}
                 break;
             case 3:
                 deleteMenu();

@@ -103,23 +103,35 @@ void DeleteByID(const char *filename, int id) {
         return;
     }
 
+    FILE *deletedFile = fopen("deleted_cars.csv", "a"); // Open in append mode
+    if (deletedFile == NULL) {
+        fclose(file);
+        fclose(tempFile);
+        printf("Error opening deleted cars file.\n");
+        return;
+    }
+
     char line[MAX_LINE];
     while (fgets(line, sizeof(line), file)) {
         char *token = strtok(line, ";");
         int carID = atoi(token);
-        if (carID != id) {
+        if (carID == id) {
+            // Write the deleted line to the deleted cars file
+            fputs(line, deletedFile);
+        } else {
+            // Write non-deleted lines to the temporary file
             fputs(line, tempFile);
         }
     }
 
     fclose(file);
     fclose(tempFile);
+    fclose(deletedFile);
 
     remove(filename);
     rename("temp.csv", filename);
 }
 
-// Function to delete the last car from the list
 void DeleteLastCar(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
@@ -134,23 +146,29 @@ void DeleteLastCar(const char *filename) {
         return;
     }
 
+    FILE *deletedFile = fopen("deleted_cars.csv", "a"); // Open in append mode
+    if (deletedFile == NULL) {
+        fclose(file);
+        fclose(tempFile);
+        printf("Error opening deleted cars file.\n");
+        return;
+    }
+
     char line[MAX_LINE];
     char lastLine[MAX_LINE];
+    lastLine[0] = '\0';
 
     while (fgets(line, sizeof(line), file)) {
         strcpy(lastLine, line);
+        fputs(line, tempFile);
     }
 
-    rewind(file);
-
-    while (fgets(line, sizeof(line), file)) {
-        if (strcmp(line, lastLine) != 0) {
-            fputs(line, tempFile);
-        }
-    }
+    // Write the last line to the deleted cars file
+    fputs(lastLine, deletedFile);
 
     fclose(file);
     fclose(tempFile);
+    fclose(deletedFile);
 
     remove(filename);
     rename("temp.csv", filename);

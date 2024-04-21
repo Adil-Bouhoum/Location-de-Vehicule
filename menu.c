@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "menu.h"
+#include "car_operations.h"
 
 void displayMenu() {
     printf("\n------ Gestion de la Location de Voitures ------\n");
