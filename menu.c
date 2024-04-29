@@ -58,6 +58,34 @@ void displayMenu2() {
                 }
 }
 
+
+void deleteMenu() {
+    char deleteChoice;
+                printf("Choisissez l'option de suppression :\n");
+                printf("a. Supprimer par ID\n");
+                printf("b. Supprimer la dernière voiture\n");
+                printf("c. Retourner au menu principal\n");
+                scanf(" %c", &deleteChoice);
+                switch (deleteChoice) {
+                    case 'a':
+                        int id;
+                        printf("Veuillez entrer l'ID a supprimer :");
+                        scanf("%d",&id);
+                        DeleteByID("carlist.csv", id);
+                        break;
+                    case 'b':
+                        // Delete the last car
+                        DeleteLastCar("carlist.csv");
+                        break;
+                    case 'c':
+                        // Return to main menu
+                        break;
+                    default:
+                        printf("Choix invalide.\n");
+                }
+}
+
+
 void searchMenu() {
     int searchID;
                 char searchBrand[50];
@@ -80,4 +108,13 @@ void searchMenu() {
                     default:
                         printf("Choix invalide.\n");
                 }
+}
+
+
+void sortMenu() {
+    printf("\n------ Trier les Voitures ------\n");
+    printf("1. Trier par Marque\n");
+    printf("2. Trier par Prix de Location\n");
+    printf("3. Retourner au menu principal\n");
+    printf("------------------------------------------------\n");
 }

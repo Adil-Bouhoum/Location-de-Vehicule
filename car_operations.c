@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "car_operations.h"
 
 void Addcar(const char *filename) {
@@ -62,41 +63,104 @@ void ModifyCarInfo(const char *filename, int id) {
     Car car;
     int modified = 0; // Flag to track if any modification occurred
 
-    while (fread(&car, sizeof(Car), 1, file)) {
-        printf("Car id is :%d , Searching for id %d \n", car.id,id);
-        if (car.id == id) {
-            modified = 1; // Set flag to indicate modification
-            printf("Enter new car information:\n");
-            printf("Brand: ");
-            fgets(car.brand, sizeof(car.brand), stdin);
+    char line[256]; // Buffer to read each line from file
+    int isFirstLine = 1; // Flag to track if it's the first line (header)
 
-            printf("Username: ");
-            fgets(car.username, sizeof(car.username), stdin);
-
-            printf("Model: ");
-            fgets(car.model, sizeof(car.model), stdin);
-
-            printf("Fuel type: ");
-            fgets(car.fuelType, sizeof(car.fuelType), stdin);
-
-            printf("Number of seats: ");
-            scanf("%d", &car.numSeats);
-            getchar(); // Consume newline left by scanf
-
-            printf("Transmission: ");
-            fgets(car.transmission, sizeof(car.transmission), stdin);
-
-            printf("Rental price: ");
-            scanf("%f", &car.rentalPrice);
-            getchar(); // Consume newline left by scanf
-
-            printf("Availability (1 for available, 0 for not available): ");
-            scanf("%d", &car.availability);
-            getchar(); // Consume newline left by scanf
+    // Read each line from the file
+    while (fgets(line, sizeof(line), file) != NULL) {
+        if (isFirstLine) {
+            // Skip the first line (header)
+            isFirstLine = 0;
+            continue;
         }
 
-        // Write the car to the temporary file
-        fwrite(&car, sizeof(Car), 1, tempFile);
+        printf("Read line: %s", line); // Debugging output
+        // Tokenize the line based on the ';' delimiter
+        char *token = strtok(line, ";");    
+
+        // Extract and convert each field to the corresponding Car structure field
+        if (token != NULL) {
+            car.id = atoi(token);
+            token = strtok(NULL, ";");
+            if (token != NULL) {
+                strncpy(car.brand, token, sizeof(car.brand) - 1);
+                car.brand[sizeof(car.brand) - 1] = '\0';
+                token = strtok(NULL, ";");
+            }
+            if (token != NULL) {
+                strncpy(car.username, token, sizeof(car.username) - 1);
+                car.username[sizeof(car.username) - 1] = '\0';
+                token = strtok(NULL, ";");
+            }
+            if (token != NULL) {
+                strncpy(car.model, token, sizeof(car.model) - 1);
+                car.model[sizeof(car.model) - 1] = '\0';
+                token = strtok(NULL, ";");
+            }
+            if (token != NULL) {
+                strncpy(car.fuelType, token, sizeof(car.fuelType) - 1);
+                car.fuelType[sizeof(car.fuelType) - 1] = '\0';
+                token = strtok(NULL, ";");
+            }
+            if (token != NULL) {
+                car.numSeats = atoi(token);
+                token = strtok(NULL, ";");
+            }
+            if (token != NULL) {
+                strncpy(car.transmission, token, sizeof(car.transmission) - 1);
+                car.transmission[sizeof(car.transmission) - 1] = '\0';
+                token = strtok(NULL, ";");
+            }
+            if (token != NULL) {
+                car.rentalPrice = atof(token);
+                token = strtok(NULL, ";");
+            }
+            if (token != NULL) {
+                car.availability = atoi(token);
+            }
+
+            // Check if car ID matches the specified ID for modification
+            if (car.id == id) {
+                modified = 1; // Set flag to indicate modification
+                printf("Enter new car information:\n");
+                printf("Brand: ");
+                fgets(car.brand, sizeof(car.brand), stdin);
+                car.brand[strcspn(car.brand, "\n")] = '\0'; // Remove newline
+
+                printf("Username: ");
+                fgets(car.username, sizeof(car.username), stdin);
+                car.username[strcspn(car.username, "\n")] = '\0'; // Remove newline
+
+                printf("Model: ");
+                fgets(car.model, sizeof(car.model), stdin);
+                car.model[strcspn(car.model, "\n")] = '\0'; // Remove newline
+
+                printf("Fuel type: ");
+                fgets(car.fuelType, sizeof(car.fuelType), stdin);
+                car.fuelType[strcspn(car.fuelType, "\n")] = '\0'; // Remove newline
+
+                printf("Number of seats: ");
+                scanf("%d", &car.numSeats);
+                getchar(); // Consume newline left by scanf
+
+                printf("Transmission: ");
+                fgets(car.transmission, sizeof(car.transmission), stdin);
+                car.transmission[strcspn(car.transmission, "\n")] = '\0'; // Remove newline
+
+                printf("Rental price: ");
+                scanf("%f", &car.rentalPrice);
+                getchar(); // Consume newline left by scanf
+
+                printf("Availability (1 for available, 0 for not available): ");
+                scanf("%d", &car.availability);
+                getchar(); // Consume newline left by scanf
+            }
+        }
+
+        // Write the car (modified or not) to the temporary file
+        fprintf(tempFile, "%d;%s;%s;%s;%s;%d;%s;%.2f;%d\n",
+                car.id, car.brand, car.username, car.model, car.fuelType,
+                car.numSeats, car.transmission, car.rentalPrice, car.availability);
     }
 
     fclose(file);
@@ -112,31 +176,7 @@ void ModifyCarInfo(const char *filename, int id) {
     }
 }
 
-void deleteMenu() {
-    char deleteChoice;
-                printf("Choisissez l'option de suppression :\n");
-                printf("a. Supprimer par ID\n");
-                printf("b. Supprimer la dernière voiture\n");
-                printf("c. Retourner au menu principal\n");
-                scanf(" %c", &deleteChoice);
-                switch (deleteChoice) {
-                    case 'a':
-                        int id;
-                        printf("Veuillez entrer l'ID a supprimer :");
-                        scanf("%d",&id);
-                        DeleteByID("carlist.csv", id);
-                        break;
-                    case 'b':
-                        // Delete the last car
-                        DeleteLastCar("carlist.csv");
-                        break;
-                    case 'c':
-                        // Return to main menu
-                        break;
-                    default:
-                        printf("Choix invalide.\n");
-                }
-}
+
 
 void DeleteFirstCar(const char *filename){
     FILE *file = fopen(filename, "r"); // Open the file in read mode
@@ -179,9 +219,9 @@ void DeleteFirstCar(const char *filename){
 }
 
 void DeleteByID(const char *filename, int id) {
-   FILE *file = fopen(filename, "r");
+    FILE *file = fopen(filename, "r");
     if (file == NULL) {
-        printf("Error opening file.\n");
+        printf("Error opening main file.\n");
         return;
     }
 
@@ -192,57 +232,91 @@ void DeleteByID(const char *filename, int id) {
         return;
     }
 
+    FILE *deletedFile = fopen("deleted_cars.csv", "a");
+    if (deletedFile == NULL) {
+        fclose(file);
+        fclose(tempFile);
+        printf("Error opening deleted cars file.\n");
+        return;
+    }
+
     char line[MAX_LINE];
+    int found = 0;
+
     while (fgets(line, sizeof(line), file)) {
+        printf("The line is : %s\n", line);
         char *token = strtok(line, ";");
         int carID = atoi(token);
-        if (carID != id) {
+
+        if (carID == id) {
+            // Write the line to the deleted cars file
+            printf("The line to delete is : %s\n", line);
+            fputs(line, deletedFile);
+            found = 1;
+        } else {
+            // Write non-deleted lines to the temporary file
+            printf("The line to keep is : %s\n", line);
             fputs(line, tempFile);
         }
     }
 
     fclose(file);
     fclose(tempFile);
+    fclose(deletedFile);
 
-    remove(filename);
-    rename("temp.csv", filename);
+    if (!found) {
+        printf("Car with ID %d not found.\n", id);
+        remove("temp.csv");
+    } else {
+        // Remove the original file and rename the temporary file
+        remove(filename);
+        rename("temp.csv", filename);
+        printf("Car with ID %d moved to deleted cars list.\n", id);
+    }
 }
 
 void DeleteLastCar(const char *filename) {
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        printf("Error opening file.\n");
-        return;
-    }
+            FILE *file = fopen(filename, "r");
+            if (file == NULL) {
+                printf("Error opening file.\n");
+                return;
+            }
 
-    FILE *tempFile = fopen("temp.csv", "w");
-    if (tempFile == NULL) {
-        fclose(file);
-        printf("Error creating temporary file.\n");
-        return;
-    }
+            FILE *tempFile = fopen("temp.csv", "w");
+            if (tempFile == NULL) {
+                fclose(file);
+                printf("Error creating temporary file.\n");
+                return;
+            }
 
-    char line[MAX_LINE];
-    char lastLine[MAX_LINE];
+            FILE *deletedFile = fopen("deleted_cars.csv", "a"); // Open in append mode
+            if (deletedFile == NULL) {
+                fclose(file);
+                fclose(tempFile);
+                printf("Error opening deleted cars file.\n");
+                return;
+            }
 
-    while (fgets(line, sizeof(line), file)) {
-        strcpy(lastLine, line);
-    }
+            char line[MAX_LINE];
+            char lastLine[MAX_LINE];
+            lastLine[0] = '\0';
 
-    rewind(file);
+            while (fgets(line, sizeof(line), file)) {
+                strcpy(lastLine, line);
+                fputs(line, tempFile);
+            }
 
-    while (fgets(line, sizeof(line), file)) {
-        if (strcmp(line, lastLine) != 0) {
-            fputs(line, tempFile);
+            // Write the last line to the deleted cars file
+            fputs(lastLine, deletedFile);
+
+            fclose(file);
+            fclose(tempFile);
+            fclose(deletedFile);
+
+            remove(filename);
+            rename("temp.csv", filename);
         }
-    }
 
-    fclose(file);
-    fclose(tempFile);
-
-    remove(filename);
-    rename("temp.csv", filename);
-}
 
 void DisplayFileContents(const char *filename) {
    FILE *file = fopen(filename, "r");
@@ -367,13 +441,6 @@ void ShowCarList(const char *filename) {
     // Function implementation
 }
 
-void sortMenu() {
-    printf("\n------ Trier les Voitures ------\n");
-    printf("1. Trier par Marque\n");
-    printf("2. Trier par Prix de Location\n");
-    printf("3. Retourner au menu principal\n");
-    printf("------------------------------------------------\n");
-}
 
 void swapCars(FILE *file, int index1, int index2) {
     // Seek to the positions of the two cars in the file
