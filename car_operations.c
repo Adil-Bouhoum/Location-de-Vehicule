@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <locale.h>
 #include "car_operations.h"
 
 void Addcar(const char *filename) {
@@ -454,140 +455,160 @@ void ShowCarList(const char *filename) {
 }
 
 
-void swapCars(FILE *file, int index1, int index2) {
-    // Seek to the positions of the two cars in the file
-    fseek(file, index1 * sizeof(Car), SEEK_SET);
-    Car car1;
-    fread(&car1, sizeof(Car), 1, file);
-
-    fseek(file, index2 * sizeof(Car), SEEK_SET);
-    Car car2;
-    fread(&car2, sizeof(Car), 1, file);
-
-    // Swap the cars in the file
-    fseek(file, index1 * sizeof(Car), SEEK_SET);
-    fwrite(&car2, sizeof(Car), 1, file);
-
-    fseek(file, index2 * sizeof(Car), SEEK_SET);
-    fwrite(&car1, sizeof(Car), 1, file);
+void swapCars(Car *car1, Car *car2) {
+    Car temp;
+    memcpy(&temp, car1, sizeof(Car));
+    memcpy(car1, car2, sizeof(Car));
+    memcpy(car2, &temp, sizeof(Car));
 }
 
 
+
 void sortByBrand(const char *filename) {
+    // Open the file for reading and writing
     FILE *file = fopen(filename, "r+");
     if (file == NULL) {
         printf("Error opening file.\n");
         return;
     }
 
-    Car currentCar, nextCar;
-    int fileSize = 0;
+    // Skip the header line
+    char header[256];
+    fgets(header, sizeof(header), file);
 
-    // Get the file size
-    fseek(file, 0, SEEK_END);
-    fileSize = ftell(file);
-    rewind(file);
+    // Read car records into an array
+    const int maxRecords = 1000; // Adjust this based on expected number of records
+    Car cars[maxRecords];
+    int numCars = 0;
 
-    int numCars = fileSize / sizeof(Car);
+    // Read each car record from the file
+    while (numCars < maxRecords && fscanf(file, "%d;%49[^;];%49[^;];%49[^;];%19[^;];%d;%19[^;];%f;%d\n",
+                                          &cars[numCars].id,
+                                          cars[numCars].brand,
+                                          cars[numCars].username,
+                                          cars[numCars].model,
+                                          cars[numCars].fuelType,
+                                          &cars[numCars].numSeats,
+                                          cars[numCars].transmission,
+                                          &cars[numCars].rentalPrice,
+                                          &cars[numCars].availability) == 9) {
+        numCars++;
+    }
 
+    // Sort cars by brand (bubble sort)
     for (int i = 0; i < numCars - 1; i++) {
         for (int j = 0; j < numCars - i - 1; j++) {
-            // Read current and next cars
-            fseek(file, j * sizeof(Car), SEEK_SET);
-            fread(&currentCar, sizeof(Car), 1, file);
-
-            fseek(file, (j + 1) * sizeof(Car), SEEK_SET);
-            fread(&nextCar, sizeof(Car), 1, file);
-
-            // Compare brands and swap if necessary
-            if (strcmp(currentCar.brand, nextCar.brand) > 0) {
-                swapCars(file, j, j + 1);
+            if (strcmp(cars[j].brand, cars[j + 1].brand) > 0) {
+                swapCars(&cars[j], &cars[j + 1]);
             }
         }
     }
 
+    // Reset file pointer to the beginning (to overwrite the existing file)
+    fseek(file, 0, SEEK_SET);
+
+    // Rewrite the header line
+    fprintf(file, "ID;BRAND;USERNAME;MODEL;FUEL TYPE;NUM SEATS;TRANSMISSION;RENTAL PRICE;AVAILABILITY\n");
+
+    // Write sorted car records back to the file
+    for (int i = 0; i < numCars; i++) {
+        fprintf(file, "%d;%s;%s;%s;%s;%d;%s;%.2f;%d\n",
+                cars[i].id,
+                cars[i].brand,
+                cars[i].username,
+                cars[i].model,
+                cars[i].fuelType,
+                cars[i].numSeats,
+                cars[i].transmission,
+                cars[i].rentalPrice,
+                cars[i].availability);
+    }
+
+    // Close the file
     fclose(file);
+
     printf("Cars sorted by brand.\n");
 }
 
 void sortByAvailability(const char *filename) {
-    FILE *file = fopen(filename, "r+");
-    if (file == NULL) {
-        printf("Error opening file.\n");
-        return;
-    }
 
-    Car currentCar, nextCar;
-    int fileSize = 0;
-
-    // Get the file size
-    fseek(file, 0, SEEK_END);
-    fileSize = ftell(file);
-    rewind(file);
-
-    int numCars = fileSize / sizeof(Car);
-
-    for (int i = 0; i < numCars - 1; i++) {
-        for (int j = 0; j < numCars - i - 1; j++) {
-            // Read current and next cars
-            fseek(file, j * sizeof(Car), SEEK_SET);
-            fread(&currentCar, sizeof(Car), 1, file);
-
-            fseek(file, (j + 1) * sizeof(Car), SEEK_SET);
-            fread(&nextCar, sizeof(Car), 1, file);
-
-            // Compare disponibility and swap if necessary
-            if (currentCar.availability < nextCar.availability) {
-                swapCars(file, j, j + 1);
-            }
-        }
-    }
-
-    fclose(file);
-    printf("Cars sorted by availability.\n");
 }
+
 
 void sortByRentalPrice(const char *filename) {
+    // Open the file for reading and writing
     FILE *file = fopen(filename, "r+");
     if (file == NULL) {
         printf("Error opening file.\n");
         return;
     }
 
-    Car currentCar, nextCar;
-    int fileSize = 0;
+    // Skip the header line
+    char header[MAX_LINE];
+    if (fgets(header, sizeof(header), file) == NULL) {
+        printf("Error reading header line.\n");
+        fclose(file);
+        return;
+    }
 
-    // Get the file size
-    fseek(file, 0, SEEK_END);   
-    fileSize = ftell(file);
-    rewind(file);
+    // Read car records into an array
+    Car cars[MAX_RECORDS];
+    int numCars = 0;
 
-    int numCars = fileSize / sizeof(Car);
+    while (numCars < MAX_RECORDS && fgets(header, sizeof(header), file) != NULL) {
+        int result = sscanf(header, "%d;%49[^;];%49[^;];%49[^;];%19[^;];%d;%19[^;];%f;%d",
+                            &cars[numCars].id,
+                            cars[numCars].brand,
+                            cars[numCars].username,
+                            cars[numCars].model,
+                            cars[numCars].fuelType,
+                            &cars[numCars].numSeats,
+                            cars[numCars].transmission,
+                            &cars[numCars].rentalPrice,
+                            &cars[numCars].availability);
 
+        if (result == 9) {
+            // Successfully parsed all fields
+            numCars++;
+        } else {
+            printf("Error parsing line %d.\n", numCars + 2);  // +2 to account for 0-index and header line
+        }
+    }
+
+    // Sort car records by rental price using bubble sort
     for (int i = 0; i < numCars - 1; i++) {
         for (int j = 0; j < numCars - i - 1; j++) {
-            // Read current and next cars
-            fseek(file, j * sizeof(Car), SEEK_SET);
-            fread(&currentCar, sizeof(Car), 1, file);
-            printf("%f\n", currentCar.rentalPrice);
-
-
-            
-            fseek(file, (j + 1) * sizeof(Car), SEEK_SET);
-            fread(&nextCar, sizeof(Car), 1, file);
-            printf("%f\n", nextCar.rentalPrice);
-
-            // Compare rental prices and swap if necessary
-            if (currentCar.rentalPrice > nextCar.rentalPrice) {
-                swapCars(file, j, j + 1);
+            if (cars[j].rentalPrice > cars[j + 1].rentalPrice) {
+                // Swap cars if out of order
+                Car temp;
+                memcpy(&temp, &cars[j], sizeof(Car));
+                memcpy(&cars[j], &cars[j + 1], sizeof(Car));
+                memcpy(&cars[j + 1], &temp, sizeof(Car));
             }
         }
     }
 
-    fclose(file);
-    printf("Cars sorted by rental price.\n");
-}
+    // Rewrite sorted car records back to the file
+    rewind(file); // Move file pointer to the beginning
+    fgets(header, sizeof(header), file); // Read and skip the header line
 
+    // Write sorted car records
+    for (int i = 0; i < numCars; i++) {
+        fprintf(file, "%d;%s;%s;%s;%s;%d;%s;%.2f;%d\n",
+                cars[i].id,
+                cars[i].brand,
+                cars[i].username,
+                cars[i].model,
+                cars[i].fuelType,
+                cars[i].numSeats,
+                cars[i].transmission,
+                cars[i].rentalPrice,
+                cars[i].availability);
+    }
+
+    fclose(file);
+    printf("Cars sorted by rental price (low to high).\n");
+}
 
 
 void clearInputBuffer() {

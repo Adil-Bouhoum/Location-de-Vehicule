@@ -3,6 +3,7 @@
 #define CAR_OPERATIONS_H
 
 #define MAX_LINE 1000
+#define MAX_RECORDS 100
 
 typedef struct Car {
     int id;
@@ -28,7 +29,7 @@ void DisplayCarsByAvailability(const char *filename);
 void DisplayCarsByFuelType(const char *filename);
 void ShowCarList(const char *filename);
 void sortMenu();
-void swapCars(FILE *file, int index1, int index2);
+void swapCars( Car *index1, Car *index2);
 void sortByBrand(const char *filename);
 void sortByRentalPrice(const char *filename);
 void sortByAvailability(const char *filename);
