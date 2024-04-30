@@ -86,35 +86,28 @@ void deleteMenu() {
 }
 
 
-void searchMenu() {
-    int searchID;
-                char searchBrand[50];
-                printf("Choisissez le critère de recherche :\n");
-                printf("a. Rechercher par ID\n");
-                printf("b. Rechercher par Marque\n");
-                printf("c. Retourner au menu principal\n");
-                char searchChoice;
-                scanf(" %c", &searchChoice);
-                switch (searchChoice) {
-                    case 'a':
 
-                        break;
-                    case 'b':
-
-                        break;
-                    case 'c':
-                        // Return to main menu
-                        break;
-                    default:
-                        printf("Choix invalide.\n");
-                }
-}
 
 
 void sortMenu() {
-    printf("\n------ Trier les Voitures ------\n");
+    printf("\n------ Trier les Voitures ------\n"); 
     printf("1. Trier par Marque\n");
     printf("2. Trier par Prix de Location\n");
     printf("3. Retourner au menu principal\n");
     printf("------------------------------------------------\n");
+    char searchChoice;
+    scanf(" %c", &searchChoice);
+    switch (searchChoice) {
+                    case 'a':
+                        sortByBrand("carlist.csv");
+                        break;
+                    case 'b':
+                        sortByRentalPrice("carlist.csv");
+                        break;
+                    case 'c':
+                        printf("Returning to menu principal...\n");
+                        break;
+                    default:
+                        printf("Choix invalide.\n");
+                }  
 }

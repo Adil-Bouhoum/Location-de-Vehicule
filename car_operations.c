@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "car_operations.h"
 
 void Addcar(const char *filename) {
@@ -123,6 +124,7 @@ void ModifyCarInfo(const char *filename, int id) {
             if (car.id == id) {
                 modified = 1; // Set flag to indicate modification
                 printf("Enter new car information:\n");
+                clearInputBuffer();
                 printf("Brand: ");
                 fgets(car.brand, sizeof(car.brand), stdin);
                 car.brand[strcspn(car.brand, "\n")] = '\0'; // Remove newline
@@ -242,10 +244,20 @@ void DeleteByID(const char *filename, int id) {
 
     char line[MAX_LINE];
     int found = 0;
+    int isFirstLine = 1;
+    char copiedLine[MAX_LINE];
 
     while (fgets(line, sizeof(line), file)) {
         printf("The line is : %s\n", line);
-        char *token = strtok(line, ";");
+        if (isFirstLine) {
+            // Skip the first line (header)
+            isFirstLine = 0;
+            continue;
+        }
+        printf("The line is : %s\n", line);
+        strcpy(copiedLine, line);
+        printf("The copied line is : %s\n", copiedLine);
+        char *token = strtok(copiedLine, ";");
         int carID = atoi(token);
 
         if (carID == id) {
@@ -546,7 +558,7 @@ void sortByRentalPrice(const char *filename) {
     int fileSize = 0;
 
     // Get the file size
-    fseek(file, 0, SEEK_END);
+    fseek(file, 0, SEEK_END);   
     fileSize = ftell(file);
     rewind(file);
 
@@ -557,9 +569,13 @@ void sortByRentalPrice(const char *filename) {
             // Read current and next cars
             fseek(file, j * sizeof(Car), SEEK_SET);
             fread(&currentCar, sizeof(Car), 1, file);
+            printf("%f\n", currentCar.rentalPrice);
 
+
+            
             fseek(file, (j + 1) * sizeof(Car), SEEK_SET);
             fread(&nextCar, sizeof(Car), 1, file);
+            printf("%f\n", nextCar.rentalPrice);
 
             // Compare rental prices and swap if necessary
             if (currentCar.rentalPrice > nextCar.rentalPrice) {
@@ -572,3 +588,11 @@ void sortByRentalPrice(const char *filename) {
     printf("Cars sorted by rental price.\n");
 }
 
+
+
+void clearInputBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) {
+        // Keep reading characters until newline or end of file (EOF) is encountered
+    }
+}

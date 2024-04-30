@@ -27,7 +27,7 @@ int main() {
                 displayMenu2();
                 break;
             case 5:
-                sortMenu();//stil needed
+                sortMenu();
                 break;
             case 0:
                 printf("Merci d'avoir utilisé l'application. Au revoir!\n");
