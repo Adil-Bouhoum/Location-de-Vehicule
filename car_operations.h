@@ -4,8 +4,11 @@
 
 #define MAX_LINE 1000
 #define MAX_RECORDS 100
+#define KMSEUIL 80000
 
-typedef struct Car {
+
+
+typedef struct Car{
     int id;
     char brand[50];
     char username[50];
@@ -14,10 +17,20 @@ typedef struct Car {
     int numSeats;
     char transmission[20];
     float rentalPrice;
-    int availability; // 1->dispo 0->non dispo
+    int availability; //1->dispo   0->non dispo
+    float km;
+    float val;
+    char insurance_type; //A, B or C
+    int isOnLoan; // 1->on loan   0->not on loan
+    float monthlyPayment;
+    int remainingMonths;
+
 } Car;
 
+
+
 void Addcar(const char *filename);
+void ProcessLoanDetails(const char *filename);
 void ModifyCarInfo(const char *filename, int id);
 void deleteMenu(); //MUST ADD
 void DeleteFirstCar(const char *filename);
@@ -34,5 +47,8 @@ void sortByBrand(const char *filename);
 void sortByRentalPrice(const char *filename);
 void sortByAvailability(const char *filename);
 void sortByNumSeats(const char *filename);
+void SellCarsByMilage(const char *filename);
+void PayInsurance(const char *filename, int id);
+void ProcessLoanPayment(const char *filename, int id);
 
 #endif

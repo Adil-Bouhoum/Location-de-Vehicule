@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "menu.h"
 #include "car_operations.h"
+#include "globals.h"
 
 void displayMenu() {
     printf("\n------ Gestion de la Location de Voitures ------\n");
@@ -20,6 +21,13 @@ void displayMenu() {
     printf("\t a.Trier par Marque\n");
     printf("\t b. Trier par Prix de Location\n");
     printf("\t c. Retourner au menu principal\n");
+    printf("6. Loan Menu:\n");
+    printf("\t a. Display Loan List\n");
+    printf("\t b. Update Loan List\n");
+    printf("\t c. Retourner au menu principal\n");
+    printf("7. Sell Cars Exceeding Threshold (80 000)\n");
+    printf("8. Insurrance Payement \n");
+    printf("9. Loan Payment \n");
     printf("0. Quitter\n");
     printf("------------------------------------------------\n");
 }
@@ -106,6 +114,30 @@ void sortMenu() {
                         break;
                     case 'c':
                         printf("Returning to menu principal...\n");
+                        break;
+                    default:
+                        printf("Choix invalide.\n");
+                }  
+}
+
+
+void LoanMenu() {
+    printf("\n------ Loan Menu ------\n"); 
+    printf("1. Display Loan List\n");
+    printf("2. Update all Loan List\n");
+    printf("3. Main menu\n");
+    printf("------------------------------------------------\n");
+    char searchChoice;
+    scanf(" %c", &searchChoice);
+    switch (searchChoice) {
+                    case 'a':
+                        DisplayFileContents("cars_on_loan.csv");
+                        break;
+                    case 'b':
+                        ProcessLoanDetails("carlist.csv");
+                        break;
+                    case 'c':
+                        printf("Returning to Main menu...\n");
                         break;
                     default:
                         printf("Choix invalide.\n");
