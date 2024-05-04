@@ -1,19 +1,27 @@
-1588;Citroen;Adil;Model1;Type2;4;Fuel;250.00;1;8000.00;18000.00;B
-8611;Honda;Adil;Model2;Escence;5;auto;450.00;0;15000.00;35000.00;C
+ID;BRAND;USERNAME;MODEL;FUEL TYPE;NUM SEATS;TRANSMISSION;RENTAL PRICE;AVAILABILITY;KM;VAL;INSURANCE_TYPE
 225;Ford;Sarah;Fiesta;Petrol;5;Manual;180.00;1;5000.00;12000.00;A
-304;Chevrolet;John;Camaro;Gasoline;4;Automatic;350.00;1;20000.00;40000.00;B
-502;BMW;Alice;X5;Diesel;7;Automatic;600.00;0;25000.00;60000.00;C
-709;Mercedes-Benz;Tom;C-Class;Petrol;5;Automatic;400.00;1;18000.00;45000.00;A
-815;Audi;Emma;A4;Diesel;5;Manual;320.00;1;12000.00;30000.00;B
-1002;Volkswagen;Alex;Golf;Electric;5;Automatic;280.00;1;10000.00;28000.00;C
-1203;Hyundai;Lara;Tucson;Petrol;5;Automatic;300.00;1;15000.00;32000.00;A
-1305;Kia;Chris;Optima;Hybrid;5;Automatic;350.00;0;8000.00;22000.00;B
-1408;Nissan;Sophia;Altima;Gasoline;5;CVT;270.00;1;12000.00;28000.00;C
-1506;Subaru;James;Outback;Diesel;5;Automatic;380.00;0;20000.00;35000.00;A
-1707;Mazda;Ella;CX-5;Gasoline;5;Manual;260.00;1;18000.00;38000.00;B
-1809;Peugeot;Max;308;Petrol;5;Automatic;290.00;1;15000.00;30000.00;A
-1901;Renault;Julia;Clio;Diesel;5;Manual;230.00;0;10000.00;25000.00;B
 2004;Fiat;David;500;Petrol;4;Automatic;200.00;1;8000.00;18000.00;C
-2103;Tesla;Sophie;Model S;Electric;5;Automatic;700.00;0;25000.00;80000.00;A
+1901;Renault;Julia;Clio;Diesel;5;Manual;230.00;0;10000.00;25000.00;B
+1707;Mazda;Ella;CX-5;Gasoline;5;Manual;260.00;1;18000.00;38000.00;B
+1408;Nissan;Sophia;Altima;Gasoline;5;CVT;270.00;1;12000.00;28000.00;C
+1002;Volkswagen;Alex;Golf;Electric;5;Automatic;280.00;1;10000.00;28000.00;C
+1809;Peugeot;Max;308;Petrol;5;Automatic;290.00;1;15000.00;30000.00;A
+1203;Hyundai;Lara;Tucson;Petrol;5;Automatic;300.00;1;15000.00;32000.00;A
+815;Audi;Emma;A4;Diesel;5;Manual;320.00;1;12000.00;30000.00;B
+304;Chevrolet;John;Camaro;Gasoline;4;Automatic;350.00;1;20000.00;40000.00;B
+1305;Kia;Chris;Optima;Hybrid;5;Automatic;350.00;0;8000.00;22000.00;B
+1506;Subaru;James;Outback;Diesel;5;Automatic;380.00;0;20000.00;35000.00;A
+6722;BMW;Adil;X88;Diesel;5;Automatic;400.00;1;22222.00;120000.00;B
+709;Mercedes-Benz;Tom;C-Class;Petrol;5;Automatic;400.00;1;18000.00;45000.00;A
+4555;Audi;Adil;A3;Diesel;6;Manuel;450.00;0;45333.00;120000.00;A
+8611;Honda;Adil;Model2;Escence;5;auto;450.00;0;15000.00;35000.00;C
+4788;Audi;Ilyas;A4;Diesel;6;Automatic;500.00;0;44550.00;130000.00;A
 2205;Jaguar;Daniel;F-Pace;Diesel;5;Automatic;550.00;1;18000.00;50000.00;B
+7558;Audi;Ilyas;A3;Diesel;5;Manuel;555.00;1;44500.00;120000.00;A
+502;BMW;Alice;X5;Diesel;7;Automatic;600.00;0;25000.00;60000.00;C
+2103;Tesla;Sophie;Model S;Electric;5;Automatic;700.00;0;25000.00;80000.00;A
 2309;Lamborghini;Lucas;Huracan;Gasoline;2;Automatic;1500.00;0;5000.00;200000.00;C
+225;Ford;Sarah;Fiesta;Petrol;5;Manual;180.00;1;9999999;12000.00;A
+225;Ford;Sarah;Fiesta;Petrol;5;Manual;180.00;1;9999999;12000.00;A
+225;Ford;Sarah;Fiesta;Petrol;5;Manual;180.00;1;9999999;12000.00;A
+225;Ford;Sarah;Fiesta;Petrol;5;Manual;180.00;1;9999999;12000.00;A

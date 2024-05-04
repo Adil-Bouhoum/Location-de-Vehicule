@@ -99,9 +99,9 @@ void deleteMenu() {
 
 void sortMenu() {
     printf("\n------ Trier les Voitures ------\n"); 
-    printf("1. Trier par Marque\n");
-    printf("2. Trier par Prix de Location\n");
-    printf("3. Retourner au menu principal\n");
+    printf("a. Sort by Brand\n");
+    printf("b. Sort by Price (LOW -> HIGH)\n");
+    printf("c. Main Menu\n");
     printf("------------------------------------------------\n");
     char searchChoice;
     scanf(" %c", &searchChoice);

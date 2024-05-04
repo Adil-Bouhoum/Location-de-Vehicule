@@ -50,6 +50,12 @@ void Addcar(const char *filename) {
         printf("Error opening file.\n");
         return;
     }
+    FILE *loanFile = fopen("cars_on_loan.csv", "a");
+                if (loanFile == NULL) {
+                    fclose(file); // Close previously opened file
+                    printf("Error opening loan file.\n");
+                    return;
+                }
 
      fprintf(file, "%d;%s;%s;%s;%s;%d;%s;%.2f;%d;%.2f;%.2f;%c\n",
                     newCar.id, newCar.brand, newCar.username, newCar.model, newCar.fuelType, newCar.numSeats,
@@ -58,15 +64,9 @@ void Addcar(const char *filename) {
     //Car loan Details;
      printf("Is the car on LOAN? (1:YES or 0:NO)\n");
             scanf("%d", &newCar.isOnLoan);
-            if(newCar.isOnLoan==1){
-                FILE *loanFile = fopen("cars_on_loan.csv", "w");
-                if (loanFile == NULL) {
-                fclose(file);
-                printf("Error creating loan file.\n");
-                return;
-                }   
+            getchar(); // Consume newline left by scanf
 
-
+            if(newCar.isOnLoan==1){                
 
                 printf("car ID:%d is on LOAN \n", newCar.id);
 
@@ -75,17 +75,23 @@ void Addcar(const char *filename) {
                 scanf("%f", &newCar.monthlyPayment);
                 getchar(); // Consume newline left by scanf
                 newCar.remainingMonths = newCar.val / newCar.monthlyPayment;
+                printf("Remaining mounths: %d \n", newCar.remainingMonths);
 
 
                 // Write the parsed car details to the loan file
-                fprintf(loanFile, "%d;%s;%s;%s;%s;%d;%s;%.2f;%d;%f;%f;%c;%d;%.2f;%d\n",
-                    newCar.id, newCar.brand, newCar.username, newCar.model, newCar.fuelType, newCar.numSeats,
-                    newCar.transmission, newCar.rentalPrice, newCar.availability, newCar.km, newCar.val,newCar.insurance_type,
-                    newCar.isOnLoan, newCar.monthlyPayment, newCar.remainingMonths);
+                    printf("The inputs to be saved in loan file are : \n %d;%s;%s;%s;%s;%d;%s;%.2f;%d;%.2f;%.2f;%c;%d;%.2f;%d \n",
+                        newCar.id, newCar.brand, newCar.username, newCar.model, newCar.fuelType, newCar.numSeats,
+                        newCar.transmission, newCar.rentalPrice, newCar.availability, newCar.km, newCar.val,
+                        newCar.insurance_type, newCar.isOnLoan, newCar.monthlyPayment, newCar.remainingMonths);
+                        
+                    fprintf(loanFile, "%d;%s;%s;%s;%s;%d;%s;%.2f;%d;%.2f;%.2f;%c;%d;%.2f;%d\n",
+                        newCar.id, newCar.brand, newCar.username, newCar.model, newCar.fuelType, newCar.numSeats,
+                        newCar.transmission, newCar.rentalPrice, newCar.availability, newCar.km, newCar.val,
+                        newCar.insurance_type, newCar.isOnLoan, newCar.monthlyPayment, newCar.remainingMonths);
             }
 
     
-
+    fclose(loanFile);
     fclose(file);
 
 }
@@ -180,7 +186,7 @@ void ModifyCarInfo(const char *filename, int id) {
     // Read each line from the file
     while (fgets(line, sizeof(line), file) != NULL) {
         if (isFirstLine) {
-            // Skip the first line (header)
+            fprintf(tempFile, "ID;BRAND;USERNAME;MODEL;FUEL TYPE;NUM SEATS;TRANSMISSION;RENTAL PRICE;AVAILABILITY;KM;VAL;INSURANCE_TYPE\n");
             isFirstLine = 0;
             continue;
         }
@@ -228,7 +234,20 @@ void ModifyCarInfo(const char *filename, int id) {
             }
             if (token != NULL) {
                 car.availability = atoi(token);
+                token = strtok(NULL, ";");
             }
+            if (token != NULL) {
+                car.km = atof(token);
+                token = strtok(NULL, ";");
+            }
+            if (token != NULL) {
+                car.val = atof(token);
+                token = strtok(NULL, ";");
+            }
+            if (token != NULL) {
+                car.insurance_type = *token;
+            }   
+
 
             // Check if car ID matches the specified ID for modification
             if (car.id == id) {
@@ -266,13 +285,30 @@ void ModifyCarInfo(const char *filename, int id) {
                 printf("Availability (1 for available, 0 for not available): ");
                 scanf("%d", &car.availability);
                 getchar(); // Consume newline left by scanf
-            }
+
+                printf("Car Mileage: ");
+                scanf("%f", &car.km);
+                getchar(); // Consume newline left by scanf
+
+                printf("Car value: ");
+                scanf("%f", &car.val);
+                getchar(); // Consume newline left by scanf
+
+                printf("Insurance Type: ");
+                scanf("%c", &car.insurance_type);
+                printf("The Insurance Type is c for %d : %c \n",car.id, car.insurance_type);
+            }   
         }
 
-        // Write the car (modified or not) to the temporary file
-        fprintf(tempFile, "%d;%s;%s;%s;%s;%d;%s;%.2f;%d\n",
+        printf("The line to be written is %d;%s;%s;%s;%s;%d;%s;%.2f;%d;%.2f;%.2f;%c\n",
                 car.id, car.brand, car.username, car.model, car.fuelType,
-                car.numSeats, car.transmission, car.rentalPrice, car.availability);
+                car.numSeats, car.transmission, car.rentalPrice, car.availability, 
+                car.km, car.val, car.insurance_type);
+        // Write the car (modified or not) to the temporary file
+        fprintf(tempFile, "%d;%s;%s;%s;%s;%d;%s;%.2f;%d;%.2f;%.2f;%c\n",
+                car.id, car.brand, car.username, car.model, car.fuelType,
+                car.numSeats, car.transmission, car.rentalPrice, car.availability, 
+                car.km, car.val, car.insurance_type);
     }
 
     fclose(file);
@@ -360,11 +396,10 @@ void DeleteByID(const char *filename, int id) {
     while (fgets(line, sizeof(line), file)) {
         printf("The line is : %s\n", line);
         if (isFirstLine) {
-            // Skip the first line (header)
             isFirstLine = 0;
+            fprintf(tempFile, "ID;BRAND;USERNAME;MODEL;FUEL TYPE;NUM SEATS;TRANSMISSION;RENTAL PRICE;AVAILABILITY;KM;VAL;INSURANCE_TYPE\n");
             continue;
         }
-        printf("The line is : %s\n", line);
         strcpy(copiedLine, line);
         printf("The copied line is : %s\n", copiedLine);
         char *token = strtok(copiedLine, ";");
@@ -398,46 +433,55 @@ void DeleteByID(const char *filename, int id) {
 }
 
 void DeleteLastCar(const char *filename) {
-            FILE *file = fopen(filename, "r");
-            if (file == NULL) {
-                printf("Error opening file.\n");
-                return;
-            }
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
 
-            FILE *tempFile = fopen("temp.csv", "w");
-            if (tempFile == NULL) {
-                fclose(file);
-                printf("Error creating temporary file.\n");
-                return;
-            }
+    FILE *tempFile = fopen("temp.csv", "w");
+    if (tempFile == NULL) {
+        fclose(file);
+        printf("Error creating temporary file.\n");
+        return;
+    }
 
-            FILE *deletedFile = fopen("deleted_cars.csv", "a"); // Open in append mode
-            if (deletedFile == NULL) {
-                fclose(file);
-                fclose(tempFile);
-                printf("Error opening deleted cars file.\n");
-                return;
-            }
+    FILE *deletedFile = fopen("deleted_cars.csv", "a");
+    if (deletedFile == NULL) {
+        fclose(file);
+        fclose(tempFile);
+        printf("Error opening deleted cars file.\n");
+        return;
+    }
 
-            char line[MAX_LINE];
-            char lastLine[MAX_LINE];
-            lastLine[0] = '\0';
+    char line[MAX_LINE];
+    char lastLine[MAX_LINE];
+    lastLine[0] = '\0';
+    int lineCount = 0;
 
-            while (fgets(line, sizeof(line), file)) {
-                strcpy(lastLine, line);
-                fputs(line, tempFile);
-            }
-
-            // Write the last line to the deleted cars file
-            fputs(lastLine, deletedFile);
-
-            fclose(file);
-            fclose(tempFile);
-            fclose(deletedFile);
-
-            remove(filename);
-            rename("temp.csv", filename);
+    // Read each line from the file
+    while (fgets(line, sizeof(line), file) != NULL) {
+        lineCount++;
+        if (lineCount > 1) { // Avoid writing the last line to tempFile
+            fputs(lastLine, tempFile); // Write the previous line to tempFile
         }
+        strcpy(lastLine, line); // Store the current line as the lastLine
+    }
+
+    // Write the last line to the deleted cars file
+    if (lineCount > 1) {
+        fputs(lastLine, deletedFile);
+    }
+
+    fclose(file);
+    fclose(tempFile);
+    fclose(deletedFile);
+
+    remove(filename);
+    rename("temp.csv", filename);
+
+    printf("Last car deleted and moved to deleted_cars.csv.\n");
+}
 
 
 
@@ -653,6 +697,10 @@ void swapCars(Car *car1, Car *car2) {
 
 
 void sortByBrand(const char *filename) {
+    const int maxRecords = 1000; // Adjust this based on expected number of records
+    Car cars[maxRecords];
+    int numCars = 0;
+
     // Open the file for reading and writing
     FILE *file = fopen(filename, "r+");
     if (file == NULL) {
@@ -665,21 +713,20 @@ void sortByBrand(const char *filename) {
     fgets(header, sizeof(header), file);
 
     // Read car records into an array
-    const int maxRecords = 1000; // Adjust this based on expected number of records
-    Car cars[maxRecords];
-    int numCars = 0;
-
-    // Read each car record from the file
-    while (numCars < maxRecords && fscanf(file, "%d;%49[^;];%49[^;];%49[^;];%19[^;];%d;%19[^;];%f;%d\n",
-                                          &cars[numCars].id,
-                                          cars[numCars].brand,
-                                          cars[numCars].username,
-                                          cars[numCars].model,
-                                          cars[numCars].fuelType,
-                                          &cars[numCars].numSeats,
-                                          cars[numCars].transmission,
-                                          &cars[numCars].rentalPrice,
-                                          &cars[numCars].availability) == 9) {
+    while (numCars < maxRecords &&
+           fscanf(file, "%d;%49[^;];%49[^;];%49[^;];%19[^;];%d;%19[^;];%f;%d;%f;%f;%c\n",
+                  &cars[numCars].id,
+                  cars[numCars].brand,
+                  cars[numCars].username,
+                  cars[numCars].model,
+                  cars[numCars].fuelType,
+                  &cars[numCars].numSeats,
+                  cars[numCars].transmission,
+                  &cars[numCars].rentalPrice,
+                  &cars[numCars].availability,
+                  &cars[numCars].km,
+                  &cars[numCars].val,
+                  &cars[numCars].insurance_type) == 12) {
         numCars++;
     }
 
@@ -687,6 +734,7 @@ void sortByBrand(const char *filename) {
     for (int i = 0; i < numCars - 1; i++) {
         for (int j = 0; j < numCars - i - 1; j++) {
             if (strcmp(cars[j].brand, cars[j + 1].brand) > 0) {
+                // Swap cars
                 swapCars(&cars[j], &cars[j + 1]);
             }
         }
@@ -696,11 +744,11 @@ void sortByBrand(const char *filename) {
     fseek(file, 0, SEEK_SET);
 
     // Rewrite the header line
-    fprintf(file, "ID;BRAND;USERNAME;MODEL;FUEL TYPE;NUM SEATS;TRANSMISSION;RENTAL PRICE;AVAILABILITY\n");
+    fprintf(file, "ID;BRAND;USERNAME;MODEL;FUEL TYPE;NUM SEATS;TRANSMISSION;RENTAL PRICE;AVAILABILITY;KM;VAL;INSURANCE_TYPE\n");
 
     // Write sorted car records back to the file
     for (int i = 0; i < numCars; i++) {
-        fprintf(file, "%d;%s;%s;%s;%s;%d;%s;%.2f;%d\n",
+        fprintf(file, "%d;%s;%s;%s;%s;%d;%s;%.2f;%d;%.2f;%.2f;%c\n",
                 cars[i].id,
                 cars[i].brand,
                 cars[i].username,
@@ -709,7 +757,10 @@ void sortByBrand(const char *filename) {
                 cars[i].numSeats,
                 cars[i].transmission,
                 cars[i].rentalPrice,
-                cars[i].availability);
+                cars[i].availability,
+                cars[i].km,
+                cars[i].val,
+                cars[i].insurance_type);
     }
 
     // Close the file
@@ -718,13 +769,13 @@ void sortByBrand(const char *filename) {
     printf("Cars sorted by brand.\n");
 }
 
+
 void sortByAvailability(const char *filename) {
 
 }
 
 
 void sortByRentalPrice(const char *filename) {
-    // Open the file for reading and writing
     FILE *file = fopen(filename, "r+");
     if (file == NULL) {
         printf("Error opening file.\n");
@@ -744,45 +795,56 @@ void sortByRentalPrice(const char *filename) {
     int numCars = 0;
 
     while (numCars < MAX_RECORDS && fgets(header, sizeof(header), file) != NULL) {
-        int result = sscanf(header, "%d;%49[^;];%49[^;];%49[^;];%19[^;];%d;%19[^;];%f;%d",
-                            &cars[numCars].id,
-                            cars[numCars].brand,
-                            cars[numCars].username,
-                            cars[numCars].model,
-                            cars[numCars].fuelType,
-                            &cars[numCars].numSeats,
-                            cars[numCars].transmission,
-                            &cars[numCars].rentalPrice,
-                            &cars[numCars].availability);
+        Car *currentCar = &cars[numCars];
+        int result = sscanf(header, "%d;%49[^;];%49[^;];%49[^;];%19[^;];%d;%19[^;];%f;%d;%f;%f;%c",
+                            &currentCar->id,
+                            currentCar->brand,
+                            currentCar->username,
+                            currentCar->model,
+                            currentCar->fuelType,
+                            &currentCar->numSeats,
+                            currentCar->transmission,
+                            &currentCar->rentalPrice,
+                            &currentCar->availability,
+                            &currentCar->km,
+                            &currentCar->val,
+                            &currentCar->insurance_type);
 
-        if (result == 9) {
-            // Successfully parsed all fields
+        if (result == 12) {
             numCars++;
         } else {
             printf("Error parsing line %d.\n", numCars + 2);  // +2 to account for 0-index and header line
         }
     }
 
-    // Sort car records by rental price using bubble sort
-    for (int i = 0; i < numCars - 1; i++) {
-        for (int j = 0; j < numCars - i - 1; j++) {
-            if (cars[j].rentalPrice > cars[j + 1].rentalPrice) {
-                // Swap cars if out of order
-                Car temp;
-                memcpy(&temp, &cars[j], sizeof(Car));
-                memcpy(&cars[j], &cars[j + 1], sizeof(Car));
-                memcpy(&cars[j + 1], &temp, sizeof(Car));
-            }
+    fclose(file);
+
+    if (numCars == 0) {
+        printf("No valid car records found.\n");
+        return;
+    }
+
+    // Sort car records by rental price (using insertion sort for simplicity)
+    for (int i = 1; i < numCars; i++) {
+        Car key = cars[i];
+        int j = i - 1;
+        while (j >= 0 && cars[j].rentalPrice > key.rentalPrice) {
+            cars[j + 1] = cars[j];
+            j = j - 1;
         }
+        cars[j + 1] = key;
     }
 
     // Rewrite sorted car records back to the file
-    rewind(file); // Move file pointer to the beginning
-    fgets(header, sizeof(header), file); // Read and skip the header line
+    file = fopen(filename, "w");
+    if (file == NULL) {
+        printf("Error opening file for writing.\n");
+        return;
+    }
 
-    // Write sorted car records
+    fprintf(file, "ID;BRAND;USERNAME;MODEL;FUEL TYPE;NUM SEATS;TRANSMISSION;RENTAL PRICE;AVAILABILITY;KM;VAL;INSURANCE_TYPE\n");
     for (int i = 0; i < numCars; i++) {
-        fprintf(file, "%d;%s;%s;%s;%s;%d;%s;%.2f;%d\n",
+        fprintf(file, "%d;%s;%s;%s;%s;%d;%s;%.2f;%d;%.2f;%.2f;%c\n",
                 cars[i].id,
                 cars[i].brand,
                 cars[i].username,
@@ -791,91 +853,25 @@ void sortByRentalPrice(const char *filename) {
                 cars[i].numSeats,
                 cars[i].transmission,
                 cars[i].rentalPrice,
-                cars[i].availability);
+                cars[i].availability,
+                cars[i].km,
+                cars[i].val,
+                cars[i].insurance_type);
     }
 
     fclose(file);
-    printf("Cars sorted by rental price (low to high).\n");
+    printf("Cars sorted by rental price (low to high) and updated in file.\n");
 }
-
 
 //Fonctions de payement des charges
 
 void PayInsurance(const char *filename, int id) {
-    float *caissep;
-    caissep = &caisse;
-
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        printf("Error opening file.\n");
-        return;
-    }
-    
-    int firstLine = 1;
-    char line[256];
-    int found = 0;
-    Car car;
-
-    while (fgets(line, sizeof(line), file) != NULL) {
-        if (firstLine) {
-            firstLine = 0;
-            continue; // Skip header line
-        }
-
-        // Parse line to extract car details
-
-        if(sscanf(line, "%d;%49[^;];%49[^;];%49[^;];%19[^;];%d;%19[^;];%f;%d;%f;%f;%c",
-                   &car.id, car.brand, car.username, car.model, car.fuelType, &car.numSeats,
-                   car.transmission, &car.rentalPrice, &car.availability, &car.km, &car.val,
-                   &car.insurance_type) == 12) {
-
-            // Print car details for debugging
-            printf("Car ID: %d, Insurance type: %c\n", car.id, car.insurance_type);
-                   }
-        if(car.id == id)  {
-            found = 1;
-            break;}
-    }
-
-    if(!found) { 
-        printf("Car ID not Found!\n");
-        return; }
-
-    float insuranceAmount;
-    switch (car.insurance_type) {
-        case 'A':
-            insuranceAmount = 500;
-            break;
-        case 'B':
-            insuranceAmount = 1000;
-            break;
-        case 'C':
-            insuranceAmount = 2000;
-            break;
-        default:
-            printf("Invalid insurance type.\n");
-            return;
-    }
-    if (*caissep >= insuranceAmount) {
-        *caissep -= insuranceAmount;
-        printf("Insurance payment :%d DHS successful.\n",insuranceAmount);
-    } else {
-        printf("Insufficient funds in caisse to pay insurance.\n");
-    }
-
-    fclose(file);
-}
-
-
-
-void ProcessLoanPayment(const char *filename, int id) {
-
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
         printf("Error: Could not open file.\n");
         return;
     }
-    
+
     // Skip the header line
     char line[256];
     if (fgets(line, sizeof(line), file) == NULL) {
@@ -889,9 +885,72 @@ void ProcessLoanPayment(const char *filename, int id) {
 
     // Parse each line of the file
     while (fgets(line, sizeof(line), file) != NULL) {
-        // Parse car details and loan information from the line
-        printf("Debug: Read line from file: %s\n", line);
+        if (sscanf(line, "%d;%49[^;];%49[^;];%49[^;];%19[^;];%d;%19[^;];%f;%d;%f;%f;%c",
+                   &car.id, car.brand, car.username, car.model, car.fuelType, &car.numSeats,
+                   car.transmission, &car.rentalPrice, &car.availability, &car.km, &car.val,
+                   &car.insurance_type) == 12) {
 
+            if (car.id == id) {
+                found = 1;
+                break;
+            }
+        }
+    }
+
+    fclose(file);
+
+    if (!found) {
+        printf("Car with ID %d not found.\n", id);
+        return;
+    }
+
+    float insuranceAmount;
+    switch (car.insurance_type) {
+        case 'A':
+            insuranceAmount = 500.0;
+            break;
+        case 'B':
+            insuranceAmount = 1000.0;
+            break;
+        case 'C':
+            insuranceAmount = 2000.0;
+            break;
+        default:
+            printf("Invalid insurance type.\n");
+            return;
+    }
+
+    // Perform insurance payment
+    if (caisse >= insuranceAmount) {
+        caisse -= insuranceAmount;
+        printf("Insurance payment of %.2f DHS successful.\n", insuranceAmount);
+    } else {
+        printf("Insufficient funds in caisse to pay insurance.\n");
+    }
+}
+
+
+
+void ProcessLoanPayment(const char *filename, int id) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error: Could not open file.\n");
+        return;
+    }
+
+    // Skip the header line
+    char line[256];
+    if (fgets(line, sizeof(line), file) == NULL) {
+        printf("Error: File is empty or malformed.\n");
+        fclose(file);
+        return;
+    }
+
+    Car car;
+    int found = 0;
+
+    // Parse each line of the file
+    while (fgets(line, sizeof(line), file) != NULL) {
         if (sscanf(line, "%d;%49[^;];%49[^;];%49[^;];%19[^;];%d;%19[^;];%f;%d;%f;%f;%c;%d;%f;%d",
                    &car.id, car.brand, car.username, car.model, car.fuelType, &car.numSeats,
                    car.transmission, &car.rentalPrice, &car.availability, &car.km, &car.val,
@@ -903,28 +962,25 @@ void ProcessLoanPayment(const char *filename, int id) {
             }
         }
     }
-     fclose(file);
+
+    fclose(file);
 
     if (!found) {
-        printf("Error: Car with ID %d not found.\n", id);
-        fclose(file);
+        printf("Car with ID %d not found.\n", id);
         return;
     }
 
-    
-
     if (!car.isOnLoan) {
-        printf("Error: Car with ID %d is not on loan.\n", id);
-        fclose(file);
+        printf("Car with ID %d is not on loan.\n", id);
         return;
     }
 
     if (caisse >= car.monthlyPayment) {
-        caisse -= car.monthlyPayment; 
+        caisse -= car.monthlyPayment;
         printf("Loan payment of %.2f successful for car ID %d.\n", car.monthlyPayment, id);
         printf("Updated caisse balance: %.2f\n", caisse);
     } else {
-        printf("Error: Insufficient funds to pay monthly loan for car ID %d.\n", id);
+        printf("Insufficient funds to pay monthly loan for car ID %d.\n", id);
     }
 }
 
